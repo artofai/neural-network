@@ -46,13 +46,19 @@ def plot_normal_vector(w, head_len=0.5, head_width=0.3, color='black'):
     if np.abs(head_len) > np.max(np.abs(w[1:])):
         print('[ml_plot] Arrow too $short, omitting') # yes, I know it is possible to
         # handle it
-        return
+        head_len = np.max(np.abs(w[1:]))
+        #return
 
     dx = w[1] - head_len * np.cos(angle)
     dy = w[2] - head_len * np.sin(angle)
     ax.arrow(xoffset, yoffset, dx, dy,ec=color, fc=color,
              head_width=head_width, head_length = head_len, antialiased=True)
-             
+
+def plot_data(positive, negative):
+    plt.scatter(positive[:,0], positive[:,1], marker='+', s=120, color='green')
+    plt.scatter(negative[:,0], negative[:,1], marker=(0,3,0), facecolors='none', s=120, color='purple')
+    
+          
 if __name__ == '__main__':
     w = [-2,2,2]
     init_common()
