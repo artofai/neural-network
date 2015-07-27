@@ -13,6 +13,7 @@ __license__ = 'MIT'
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
  
 def init_common(plot_size=[-5,5,-5,5]):
     plt.grid()
@@ -54,9 +55,21 @@ def plot_normal_vector(w, head_len=0.5, head_width=0.3, color='black'):
     ax.arrow(xoffset, yoffset, dx, dy,ec=color, fc=color,
              head_width=head_width, head_length = head_len, antialiased=True)
 
-def plot_data(positive, negative):
-    plt.scatter(positive[:,0], positive[:,1], marker='+', s=120, color='green')
-    plt.scatter(negative[:,0], negative[:,1], marker=(0,3,0), facecolors='none', s=120, color='purple')
+def plot_data(data):
+    positive = data.X[data.y == 1]
+    negative = data.X[data.y == 0]
+
+    plt.scatter(positive[:,1], positive[:,2], marker='+', s=120, color='green')
+    plt.scatter(negative[:,1], negative[:,2], marker=(0,3,0), facecolors='none', s=120, color='purple')
+    
+def plot_error(error, cases):
+    error = error * 100.0 / cases
+    ax = plt.axes()
+    ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%0.0f%%"))
+    #plt.ylim(0,100)
+    plt.xlabel("Iteration #")
+    plt.ylabel("Total error")
+    plt.plot(error, color='red', linewidth=2.0)
     
           
 if __name__ == '__main__':
