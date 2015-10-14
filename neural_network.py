@@ -31,6 +31,10 @@ class NeuralNetwork(object):
         J = 0.5*sum((y-self.y_hat)**2)
         return J
 
+    def nabla_cost(self, X, y):
+        self.forward(X)
+        return (self.y_hat - y)
+
     def cost_prime(self, X, y):
         self.forward(X)
 
@@ -59,8 +63,24 @@ class NeuralNetwork(object):
         dJdW1 = np.dot(X.T, delta1)
         assert dJdW1.shape == (self.input_layer_size + 1, self.hidden_layer_size)
 
-        return None
+        return dJdW1, dJdW2
 
+    def alternative_cost_prime(self, X, y):
+        self.forward(X)
+
+        nabla = self.nabla_cost(X, y)
+        delta2 = np.multiply(nabla, self.phi_prime(self.v2))
+
+        truncatedW2 = self.W2[1:,:]
+
+        delta1 = np.multiply(np.dot(delta2, truncatedW2.T), self.phi_prime(self.v1))
+
+        dJdW2 = np.dot(self.a1.T, delta2)
+        bias = np.ones((self.m, 1))
+        X = np.hstack((bias, X))
+        dJdW1 = np.dot(X.T, delta1)
+
+        return dJdW1, dJdW2
 
     # initialize weights randomly
     def random_init(self):
@@ -94,8 +114,12 @@ X = np.array([[2,3]])
 y = np.array([[0,0,0,0,0]])
 
 nn = NeuralNetwork()
-nn.forward(X)
-print(nn.y_hat)
-nn.cost_prime(X, y)
+old = nn.cost_prime(X, y)
+new = nn.alternative_cost_prime(X, y)
+
+print(old[0] - new[0])
+print(old[1] - new[1])
+
+
 #print(y)
 
