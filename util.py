@@ -34,13 +34,13 @@ def wrap_matrix(weights, shapes):
 def test_unwrap():
     a = np.array([[1,2],[3,4]])
     b = np.array([[5,6],[7,8]])
-    flat = unwrap_weights([a,b])
+    flat = unwrap_matrix([a,b])
     print(flat)
     assert np.array_equal(flat, np.array([1,2,3,4,5,6,7,8]))
 
 def test_wrap():
     flat = np.array(np.linspace(1,26,26))
-    nest = wrap(flat, [(2,3),(4,5)])
+    nest = wrap_matrix(flat, [(2,3),(4,5)])
     a = np.array([[1,2,3],[4,5,6]])
     b = np.array([[7,8,9,10,11],
                   [12,13,14,15,16],

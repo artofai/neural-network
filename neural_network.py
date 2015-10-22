@@ -10,13 +10,14 @@ __author__ = 'xevaquor'
 __license__ = 'MIT'
 
 import numpy as np
+import util
 
 class NeuralNetwork(object):
     def __init__(self):
         # set network configuration
         self.input_layer_size = 2
         self.hidden_layer_size = 8
-        self.output_layer_size = 5
+        self.output_layer_size = 1
         self.random_init()
 
     # activation function
@@ -24,7 +25,7 @@ class NeuralNetwork(object):
         return 1. / (1 + np.exp(-v))
 
     def phi_prime(self, v):
-        return np.exp(-v)/((1 + np.exp(-1))**2)
+        return np.exp(-v)/((1 + np.exp(-v))**2)
 
     def cost(self, X, y):
         self.y_hat = self.forward(X)
@@ -82,6 +83,39 @@ class NeuralNetwork(object):
 
         return dJdW1, dJdW2
 
+    def get_wages(self):
+        return util.unwrap_matrix([self.W1, self.W2])
+
+    def set_wages(self, wages):
+        self.W1, self.W2 = util.wrap_matrix(wages, [self.W1.shape, self.W2.shape])
+
+    def compute_gradients(self, X, y):
+        a,b = self.alternative_cost_prime(X, y)
+        return util.unwrap_matrix([a,b])
+
+    def numerical_gradient(self, X, y):
+        initial = self.get_wages()
+        numgrad = np.zeros(initial.shape)
+        peturb = np.zeros(initial.shape)
+        epsilion = 1e-4
+
+        for p in range(len(initial)):
+            peturb[p] = epsilion
+            self.set_wages(initial + peturb)
+            loss2 = self.cost(X, y)
+
+            self.set_wages(initial - peturb)
+            loss1 = self.cost(X, y)
+
+            numgrad[p] = (loss2 - loss1) / (2. * epsilion)
+
+            peturb[p] = 0
+
+        self.set_wages(initial)
+
+        return numgrad;
+
+
     # initialize weights randomly
     def random_init(self):
         self.W1 = np.random.normal(1,size=(
@@ -109,9 +143,9 @@ class NeuralNetwork(object):
         return self.y_hat
 
 
-X = np.array([[2,3]])
+X = np.array([[2.,3.]])
 
-y = np.array([[0,0,0,0,0]])
+y = np.array([[100.]])
 
 nn = NeuralNetwork()
 old = nn.cost_prime(X, y)
@@ -120,6 +154,19 @@ new = nn.alternative_cost_prime(X, y)
 print(old[0] - new[0])
 print(old[1] - new[1])
 
+d = nn.get_wages()
+nn.set_wages(d)
+d2 = nn.get_wages()
+
+numgrad = nn.numerical_gradient(X, y)
+grad = nn.compute_gradients(X, y)
+
+score = np.linalg.norm(grad- numgrad)/np.linalg.norm(grad+numgrad)
+print(score)
+print(numgrad)
+print(grad)
+
+print(grad-numgrad)
 
 #print(y)
 
