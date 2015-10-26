@@ -11,6 +11,7 @@ __license__ = 'MIT'
 
 import numpy as np
 
+
 def unwrap_matrix(weights):
     out = np.array([])
 
@@ -21,36 +22,27 @@ def unwrap_matrix(weights):
 
     return out
 
+
 def wrap_matrix(weights, shapes):
+    """
+    Creates matrices given size, from provided vector of values
+    :param weights: Weights to unpack
+    :param shapes: Iterable of consecutive matrces sizes
+    """
     starting_index = 0
     for s in shapes:
         to_take = np.prod(s)
         elements = weights[starting_index:starting_index + to_take]
         starting_index += to_take
-       # np.prod
         yield elements.reshape(s)
 
 
-def test_unwrap():
-    a = np.array([[1,2],[3,4]])
-    b = np.array([[5,6],[7,8]])
-    flat = unwrap_matrix([a,b])
-    print(flat)
-    assert np.array_equal(flat, np.array([1,2,3,4,5,6,7,8]))
+def list_of_arrays_is_equal(a, b):
+    if len(a) != len(b):
+        return False
 
-def test_wrap():
-    flat = np.array(np.linspace(1,26,26))
-    nest = wrap_matrix(flat, [(2,3),(4,5)])
-    a = np.array([[1,2,3],[4,5,6]])
-    b = np.array([[7,8,9,10,11],
-                  [12,13,14,15,16],
-                  [17,18,19,20,21],
-                  [22,23,24,25,26]])
+    for i in range(0, len(a)):
+        if not np.array_equal(a[i], b[i]):
+            return False
 
-    r = [x for x in nest]
-
-    assert np.array_equal(r[0], a)
-    assert np.array_equal(r[1], b)
-
-test_unwrap()
-test_wrap()
+    return True

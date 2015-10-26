@@ -11,13 +11,14 @@ __license__ = 'MIT'
 
 import numpy as np
 import util
+import layer
 
 class NeuralNetwork(object):
     def __init__(self):
         # set network configuration
         self.input_layer_size = 2
         self.hidden_layer_size = 8
-        self.output_layer_size = 1
+        self.output_layer_size = 2
         self.random_init()
 
     # activation function
@@ -29,7 +30,7 @@ class NeuralNetwork(object):
 
     def cost(self, X, y):
         self.y_hat = self.forward(X)
-        J = 0.5*sum((y-self.y_hat)**2)
+        J = 0.5*np.sum((y-self.y_hat)**2)
         return J
 
     def nabla_cost(self, X, y):
@@ -143,16 +144,15 @@ class NeuralNetwork(object):
         return self.y_hat
 
 
-X = np.array([[2.,3.]])
+X = np.array([[2.,3.],
+              ])
 
-y = np.array([[100.]])
+y = np.array([[1.,2],
+              ])
 
 nn = NeuralNetwork()
 old = nn.cost_prime(X, y)
 new = nn.alternative_cost_prime(X, y)
-
-print(old[0] - new[0])
-print(old[1] - new[1])
 
 d = nn.get_wages()
 nn.set_wages(d)
@@ -163,10 +163,15 @@ grad = nn.compute_gradients(X, y)
 
 score = np.linalg.norm(grad- numgrad)/np.linalg.norm(grad+numgrad)
 print(score)
-print(numgrad)
-print(grad)
-
-print(grad-numgrad)
-
 #print(y)
+
+xd1 = nn.forward(X)
+
+lechu = layer.NN(2, [8], 2)
+
+lechu.set_wages(d2)
+xd2 = lechu.forward(X)
+
+print(xd1)
+print(xd2)
 
