@@ -162,7 +162,7 @@ numgrad = nn.numerical_gradient(X, y)
 grad = nn.compute_gradients(X, y)
 
 score = np.linalg.norm(grad- numgrad)/np.linalg.norm(grad+numgrad)
-print(score)
+#print(score)
 #print(y)
 
 xd1 = nn.forward(X)
@@ -172,6 +172,11 @@ lechu = layer.NN(2, [8], 2)
 lechu.set_wages(d2)
 xd2 = lechu.forward(X)
 
-print(xd1)
-print(xd2)
+#print(xd1)
+#print(xd2)
 
+old_1, old_2 = nn.cost_prime(X, y)
+new_1, new_2 = lechu.cost_prime(X, y)
+
+print(old_1 - new_1)
+print(old_2 - new_2)

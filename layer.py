@@ -17,6 +17,8 @@ class LayerBase(object):
     def __init__(self):
         self.size = None
         self.W = np.zeros((0,0))
+        self.a = None
+        self.v = None
 
     def random_init(self):
         raise NotImplementedError()
@@ -92,19 +94,69 @@ class NN(object):
         # examples, features
         assert n == self.layers[0].size
 
-        # 0->1
-        bias = np.ones((m, 1))
+        self.layers[0].a = X
+
+        for i in range(1, len(self.layers)):
+            source_layer = self.layers[i-1]
+            dest_layer = self.layers[i]
+
+            bias = np.ones((source_layer.a.shape[0], 1))
+            biased_source_layer = np.hstack((bias, source_layer.a))
+
+            dest_layer.v = np.dot(biased_source_layer, dest_layer.W)
+            dest_layer.a = dest_layer.phi(dest_layer.v)
+
+        self.y_hat = self.layers[-1].a
+        return self.y_hat
+
+    def cost(self, X, y):
+        self.y_hat = self.forward(X)
+        J = 0.5*np.sum((y-self.y_hat)**2)
+        return J
+
+    def nabla_cost(self, X, y):
+        self.forward(X)
+        return (self.y_hat - y)
+
+    def cost_prime(self, X, y):
+
+        nabla_cost = self.nabla_cost(X, y)
+        delta2 = np.multiply(nabla_cost, self.layers[-1].phi_prime(self.layers[-1].v))
+        truncatedW = self.layers[-1].W[1:, :]
+
+        delta1 = np.multiply(np.dot(delta2, truncatedW.T), self.layers[1].phi_prime(self.layers[1].v))
+        DJdW2 = np.dot(self.layers[1].a.T, delta2)
+        bias = np.ones((X.shape[0], 1))
+        biased = np.hstack((bias, X))
+        dJdW1 = np.dot(biased.T, delta1)
+
+        return dJdW1, DJdW2
+
+        nabla = self.nabla_cost(X, y)
+        delta2 = np.multiply(nabla, self.phi_prime(self.v2))
+
+        truncatedW2 = self.W2[1:,:]
+
+        delta1 = np.multiply(np.dot(delta2, truncatedW2.T), self.phi_prime(self.v1))
+
+        dJdW2 = np.dot(self.a1.T, delta2)
+        bias = np.ones((self.m, 1))
         X = np.hstack((bias, X))
+        dJdW1 = np.dot(X.T, delta1)
 
-        v1 = np.dot(X, self.layers[1].W)
-        a1 = self.layers[1].phi(v1)
+        return dJdW1, dJdW2
 
-        # 1->2
-        bias = np.ones((a1.shape[0], 1))
-        a1 = np.hstack((bias, a1))
-        v2 = np.dot(a1, self.layers[2].W)
-        a2 = self.layers[2].phi(v2)
 
-        self.y_hat = a2
-        return a2
+dd = NN(5, [2,3,4], 3)
+dd.random_init()
 
+X = np.array([[1,2,3,4,5],
+              [10,20,30,40,50],
+              [8,6,4,2,4]],dtype=float)
+
+Y = np.array([[1,0,1],
+             [1,10,3],
+             [1,-4,4]], dtype=float)
+
+yyy = dd.forward(X)
+#print(yyy)
