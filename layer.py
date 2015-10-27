@@ -101,9 +101,9 @@ class NN(object):
             dest_layer = self.layers[i]
 
             bias = np.ones((source_layer.a.shape[0], 1))
-            biased_source_layer = np.hstack((bias, source_layer.a))
+            source_layer.a = np.hstack((bias, source_layer.a))
 
-            dest_layer.v = np.dot(biased_source_layer, dest_layer.W)
+            dest_layer.v = np.dot(source_layer.a, dest_layer.W)
             dest_layer.a = dest_layer.phi(dest_layer.v)
 
         self.y_hat = self.layers[-1].a
@@ -123,6 +123,7 @@ class NN(object):
         nabla_cost = self.nabla_cost(X, y)
         delta2 = np.multiply(nabla_cost, self.layers[-1].phi_prime(self.layers[-1].v))
         truncatedW = self.layers[-1].W[1:, :]
+        #truncatedW = self.layers[-1].W
 
         delta1 = np.multiply(np.dot(delta2, truncatedW.T), self.layers[1].phi_prime(self.layers[1].v))
         DJdW2 = np.dot(self.layers[1].a.T, delta2)
@@ -146,17 +147,17 @@ class NN(object):
 
         return dJdW1, dJdW2
 
+if __name__ == '__main__':
+    dd = NN(5, [2,3,4], 3)
+    dd.random_init()
 
-dd = NN(5, [2,3,4], 3)
-dd.random_init()
+    X = np.array([[1,2,3,4,5],
+                  [10,20,30,40,50],
+                  [8,6,4,2,4]],dtype=float)
 
-X = np.array([[1,2,3,4,5],
-              [10,20,30,40,50],
-              [8,6,4,2,4]],dtype=float)
+    Y = np.array([[1,0,1],
+                 [1,10,3],
+                 [1,-4,4]], dtype=float)
 
-Y = np.array([[1,0,1],
-             [1,10,3],
-             [1,-4,4]], dtype=float)
-
-yyy = dd.forward(X)
-#print(yyy)
+    yyy = dd.forward(X)
+    #print(yyy)
