@@ -5,7 +5,6 @@ The Art of an Artificial Intelligence
 http://art-of-ai.com
 https://github.com/artofai
 """
-from IPython.parallel.client.magics import output_args
 
 __author__ = 'xevaquor'
 __license__ = 'MIT'
