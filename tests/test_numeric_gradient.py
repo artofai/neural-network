@@ -36,7 +36,7 @@ class TestNN(TestCase):
     def test_get_set_wages_give_same_result(self):
         xsize = 25
         ysize = 10
-        nn = layer.NN(xsize, [3,4], ysize)
+        nn = layer.NN(xsize, [3], ysize)
         X = np.random.uniform(-100,100,size=(1,xsize))
         Y = np.random.uniform(-100,100,size=(1,ysize))
         grad = compute_gradients(nn, X, Y)

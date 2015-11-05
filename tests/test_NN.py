@@ -9,7 +9,7 @@ import util
 class TestNN(TestCase):
 
     def test_get_set_wages_give_same_result(self):
-        nn = layer.NN(5, [3], 4)
+        nn = layer.NN(5, [3,2,1], 4)
         nn.random_init()
         w = nn.get_wages()
         for l in nn.layers[1:]:

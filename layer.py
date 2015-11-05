@@ -119,32 +119,26 @@ class NN(object):
 
     def cost_prime(self, X, y):
 
+        # output layer delta
+
+        deltas = [None] * len(self.layers)
+        differentials = [None] * len(self.layers)
+
         nabla_cost = self.nabla_cost(X, y)
-        delta2 = np.multiply(nabla_cost, self.layers[-1].phi_prime(self.layers[-1].v))
+        deltas[-1] = np.multiply(nabla_cost, self.layers[-1].phi_prime(self.layers[-1].v))
+        differentials[2] = np.dot(self.layers[1].a.T, deltas[2])
+
+
         truncatedW = self.layers[-1].W[1:, :]
         #truncatedW = self.layers[-1].W
 
-        delta1 = np.multiply(np.dot(delta2, truncatedW.T), self.layers[1].phi_prime(self.layers[1].v))
-        DJdW2 = np.dot(self.layers[1].a.T, delta2)
+        deltas[1] = np.multiply(np.dot(deltas[2], truncatedW.T), self.layers[1].phi_prime(self.layers[1].v))
         bias = np.ones((X.shape[0], 1))
         biased = np.hstack((bias, X))
-        dJdW1 = np.dot(biased.T, delta1)
+        differentials[1] = np.dot(self.layers[0].a.T, deltas[1])
 
-        return dJdW1, DJdW2
+        return differentials[1:]
 
-        nabla = self.nabla_cost(X, y)
-        delta2 = np.multiply(nabla, self.phi_prime(self.v2))
-
-        truncatedW2 = self.W2[1:,:]
-
-        delta1 = np.multiply(np.dot(delta2, truncatedW2.T), self.phi_prime(self.v1))
-
-        dJdW2 = np.dot(self.a1.T, delta2)
-        bias = np.ones((self.m, 1))
-        X = np.hstack((bias, X))
-        dJdW1 = np.dot(X.T, delta1)
-
-        return dJdW1, dJdW2
 
 if __name__ == '__main__':
     dd = NN(5, [2,3,4], 3)
